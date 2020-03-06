@@ -20,11 +20,11 @@ TreeFlow is a JSON-to-code compiler that takes a JSON configuration file and use
 To generate your first data vizualisation application, you can use one of our samples. There are 9 samples included in this repository. 
 Start by cloning the repository then run the following commands:
 
-```
-// Install dependencies of the compiler
+```bash
+# Install dependencies of the compiler
 npm install 
 
-// Run one of the samples below
+# Run one of the samples below
 npm run sample-1
 npm run sample-2
 npm run sample-3
@@ -35,20 +35,18 @@ npm run sample-7
 npm run sample-8
 npm run sample-9
 
-// the above command will have generated an app folder
+# the above command will have generated an app folder
 cd app
 
-// install dependencies of the generated app
+# install dependencies of the generated app
 npm install
 
-// Start the node server
+# Start the node server
 node index.js 
 
-// For sample 3, 4, 5, 6, you can use the included Data-Mocker to generate data for the graphs
-// In a different shell while the server is running, run
-node app/Data-Mocker.js
+# For sample 3, 4, 5, 6, you can use the included Data-Mocker to generate data for the graphs
+# In a different shell while the server is running, run
+node Data-Mocker.js
 ```
 
 Your generated application should now be hosted on localhost:3000! 
- 
-
