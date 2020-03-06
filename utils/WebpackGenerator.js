@@ -12,25 +12,38 @@ module.exports = {\n\
         './Main.js',\n\
     ],\n\
     module: {\n\
-        loaders: [\n\
+        rules: [\n\
             {\n\
                 test: /\.js$/,\n\
                 exclude: /(node_modules|bower_components)/,\n\
-                loader: 'babel-loader',\n\
-                query: { presets: ['es2015','react','stage-0'], plugins: ['transform-decorators-legacy', 'transform-class-properties'] }\n\
+                use: [\n\
+                    {\n\
+                        loader: 'babel-loader',\n\
+                        query: { presets: ['@babel/env','@babel/preset-react'], plugins: [['@babel/plugin-proposal-decorators', { 'legacy': true }], '@babel/plugin-proposal-class-properties', '@babel/plugin-proposal-function-bind'] }\n\
+                    }\n\
+                ],\n\
             },\n\
             {\n\
                 test: /\.css$/,\n\
-                loader: 'style!css'\n\
-            },{\n\
-                test: /\.less$/,\n\
-                loader:'style!css!less'\n\
+                use: [\n\
+                    {\n\
+                        loader: 'css-loader'\n\
+                    }\n\
+                ]\n\
+            },\n\
+            {\n\
+                test: /.less$/,\n\
+                use: [ {loader: 'style-loader'}, {loader: 'css-loader'}, {loader: 'less-loader'} ]\n\
             },\n\
             {\n\
                 test: /\.(png|jpg|gif|svg)$/i,\n\
-                loaders: [\n\
-                    'url-loader?limit=4000&name=[name]-[hash:5].[ext]',\n\
-                    'image-webpack-loader'\n\
+                use: [\n\
+                    {\n\
+                        loader: 'url-loader?limit=4000&name=[name]-[hash:5].[ext]'\n\
+                    },\n\
+                    {\n\
+                        loader: 'image-webpack-loader'\n\
+                    }\n\
                 ]\n\
             }\n\
         ]\n\
@@ -39,8 +52,8 @@ module.exports = {\n\
         historyApiFallback: true\n\
     },\n\
     resolve:{\n\
-        root:[path.resolve(__dirname, 'lib'),path.resolve(__dirname,'node_modules')],\n\
-        extensions:['','.js']\n\
+        modules:[path.resolve(__dirname, 'lib'),path.resolve(__dirname,'node_modules')],\n\
+        extensions:['.js']\n\
     },\n\
     output: {\n\
         path: path.join(__dirname, '/'),\n\
