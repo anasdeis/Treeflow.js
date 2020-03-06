@@ -26,11 +26,14 @@ module.exports = {\n\
             {\n\
                 test: /\.css$/,\n\
                 use: [\n\
-                    {\n\
-                        loader: 'css-loader'\n\
-                    }\n\
+                  {\n\
+                    loader: 'style-loader'\n\
+                  },\n\
+                  {\n\
+                    loader: 'css-loader'\n\
+                  }\n\
                 ]\n\
-            },\n\
+              },\n\
             {\n\
                 test: /.less$/,\n\
                 use: [ {loader: 'style-loader'}, {loader: 'css-loader'}, {loader: 'less-loader'} ]\n\
