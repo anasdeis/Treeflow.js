@@ -79,11 +79,17 @@ module.exports = function (pages, path) {
                         <FixTable leftCol='1' rightCol='0' left='45' right='0' className='td-inner-txt'\
                     tableList={"+storeName + "_table}/>\
                         </Panel>")
-                } else if (panel.type == 'scatter'){
-                    sockets.push({id:panel.store.socket.id, storeName});
-                    panelStoreConnectors.push("const " + storeName + "_scatter = this.props."+storeName+".scatter;");
+                } else if (panel.type == 'scatter') {
+                    sockets.push({id: panel.store.socket.id, storeName});
+                    panelStoreConnectors.push("const " + storeName + "_scatter = this.props." + storeName + ".scatter;");
                     panelViews.push("<Panel title = \"" + panel.name + "\">\
-                        <Echarts style={{width:'100%',height:'365px'}} option={"+storeName+"_scatter}/>\
+                        <Echarts style={{width:'100%',height:'365px'}} option={" + storeName + "_scatter}/>\
+                    </Panel>");
+                } else if (panel.type == 'bubble'){
+                        sockets.push({id:panel.store.socket.id, storeName});
+                        panelStoreConnectors.push("const " + storeName + "_bubble = this.props."+storeName+".bubble;");
+                        panelViews.push("<Panel title = \"" + panel.name + "\">\
+                        <Echarts style={{width:'100%',height:'365px'}} option={"+storeName+"_bubble}/>\
                     </Panel>");
                 } else if (panel.type == 'pie'){
                     sockets.push({id:panel.store.socket.id, storeName});
