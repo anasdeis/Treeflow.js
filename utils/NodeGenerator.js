@@ -94,6 +94,13 @@ socket.on('newDataPoint', body =>{\
         from: socket.id.slice(8)\
     });\
 });\
+socket.on('newDataPoints', body =>{\
+    console.log('new data array received, '+body.centroids.length+' new elements');\
+    socket.broadcast.emit('newDataPoints', {\
+        body,\
+        from: socket.id.slice(8)\
+    });\
+});\
 socket.on('disconnect', function() {\
     console.log('disconnect');\
 });\

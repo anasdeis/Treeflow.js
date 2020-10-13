@@ -85,7 +85,7 @@ module.exports = function(storeName, panel, pageDirectory){
                 rightBody: [],\
                 centerBody: centerBody}");
             ws.writeLine('}');
-        } else if(panel.type == 'scatter' || panel.type == 'pie' || panel.type == 'graph' || panel.type == 'stackedgraph' || panel.type == 'bubble') {
+        } else if(panel.type == 'scatter' || panel.type == 'pie' || panel.type == 'graph' || panel.type == 'stackedgraph') {
             // initialize an empty array so that when socket.io emits messages in, it will store the data in the array
             ws.writeLine("@observable array = [];");
             // form  based on headers definition in the Config.json
@@ -97,10 +97,19 @@ module.exports = function(storeName, panel, pageDirectory){
                 ws.writeLine("@computed get graph" + EchartAdaptor.graph.toString().replace('function', ''));
             else if(panel.type == 'stackedgraph')
                 ws.writeLine("@computed get stackedGraph" + EchartAdaptor.stackedGraph.toString().replace('function', ''));
-            else if(panel.type == 'bubble')
-                ws.writeLine("@computed get bubble" + EchartAdaptor.bubble.toString().replace('function', ''));
+            
 
             ws.writeLine(__AddDataPoints__);
+        } else if (panel.type == 'bubble') {
+            // initialize an empty array so that when socket.io emits messages in, it will store the data in the array
+            ws.writeLine("@observable array = [];");
+            ws.writeLine("@computed get bubble" + EchartAdaptor.bubble.toString().replace('function', ''));
+            if (!panel.mode) {
+                throw "Clustering mode for bubble chart missing";
+            }
+            else if (panel.mode === 'pre-clustered') {
+                ws.writeLine(__AddCentroids__);
+            }
         }
         ws.writeLine(__ClassFooter(storeName));
     });
@@ -112,7 +121,7 @@ const __ClassFooter = (storeName) => {return "}\
 var store = window.store = new " + storeName +";\
 export default store"
 }
-const __StoreFileDependencies__ = "import { autorun, observable, computed} from 'mobx';"
+const __StoreFileDependencies__ = "import { autorun, observable, computed} from 'mobx';\nimport echarts from 'echarts';"
 const __BasicFunctions__ = "reset(){this.map=this.map.map(e=>{return 0})}\
 changeValue(value,param){this.map[param]=value;}"
 const __AddDataPoints__ = "addDataPoints (x,y,gateIndex){\
@@ -123,4 +132,8 @@ const __AddDataPoints__ = "addDataPoints (x,y,gateIndex){\
     this.array.push([]);\
 }\
 this.array[gateIndex]=array;\
+};"
+
+const __AddCentroids__ = "addDataPointsArray (data){\
+    this.array = data.map(centroid => [centroid.x, centroid.y, centroid.size, centroid.label]);\
 };"

@@ -134,11 +134,15 @@ module.exports = function (pages, path) {
                                 this.socket = io.connect('/');\
                                 this.socket.on('newDataPoint', function(data){\
                                     "+sockets.map((e,idx)=>{
-                                        return "if(data.body.id=="+e.id+")this.props."+e.storeName+".addDataPoints(data.body.x, data.body.y, data.body.gateIndex)"
+                                        return "if(data.body.id=="+e.id+")this.props."+e.storeName+".addDataPoints(data.body)"
                                     }).join('\n')+"}.bind(this));\
                                 this.socket.on('setArray', function(data){"+
                                     sockets.map((e,idx)=>{
                                         return "if(data.body.id=="+e.id+")this.props."+e.storeName+".setArray(data.array, data.body.gateIndex)"
+                                    }).join('\n')+"}.bind(this));\
+                                this.socket.on('newDataPoints', function(data){"+
+                                    sockets.map((e,idx)=>{
+                                        return "if(data.body.id=="+e.id+")this.props."+e.storeName+".addDataPointsArray(data.body.centroids)"
                                     }).join('\n')+"}.bind(this));"+"}}");
                     }
                     ws.writeLine("render(){" + panelStoreConnectors[0]);

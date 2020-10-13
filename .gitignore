@@ -4,3 +4,4 @@ jview.iml
 package-lock.json
 demo/
 .idea/
+.vscode/*
