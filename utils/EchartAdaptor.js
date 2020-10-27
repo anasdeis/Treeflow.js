@@ -237,19 +237,8 @@ module.exports = {
         this.array.forEach(element => data.push(element));
 
         const option = {
-            backgroundColor: new echarts.graphic.RadialGradient(0.3, 0.3, 0.8, [{
-                offset: 0,
-                color: '#f7f8fa'
-            }, {
-                offset: 1,
-                color: '#cdd0d5'
-            }]),
             title: {
-                text: 'Life expectancy and GDP of each country in 1990 and 2015'
-            },
-            legend: {
-                right: 10,
-                data: ['1990', '2015']
+                text: 'Bubble Chart'
             },
             xAxis: {
                 splitLine: {
@@ -267,11 +256,11 @@ module.exports = {
                 scale: true
             },
             series: [{
-                name: '1990',
-                data: data[0],
+                name: 'Series 1',
+                data: data,
                 type: 'scatter',
                 symbolSize: function (data) {
-                    return Math.sqrt(data[2]) / 5e2;
+                    return data[2];
                 },
                 emphasis: {
                     label: {
@@ -292,34 +281,6 @@ module.exports = {
                     }, {
                         offset: 1,
                         color: 'rgb(204, 46, 72)'
-                    }])
-                }
-            }, {
-                name: '2015',
-                data: data[1],
-                type: 'scatter',
-                symbolSize: function (data) {
-                    return Math.sqrt(data[2]) / 5e2;
-                },
-                emphasis: {
-                    label: {
-                        show: true,
-                        formatter: function (param) {
-                            return param.data[3];
-                        },
-                        position: 'top'
-                    }
-                },
-                itemStyle: {
-                    shadowBlur: 10,
-                    shadowColor: 'rgba(25, 100, 150, 0.5)',
-                    shadowOffsetY: 5,
-                    color: new echarts.graphic.RadialGradient(0.4, 0.3, 1, [{
-                        offset: 0,
-                        color: 'rgb(129, 227, 238)'
-                    }, {
-                        offset: 1,
-                        color: 'rgb(25, 183, 207)'
                     }])
                 }
             }]
