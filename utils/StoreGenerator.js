@@ -101,6 +101,11 @@ module.exports = function(storeName, panel, pageDirectory){
 
             ws.writeLine(__AddDataPoints__);
         } else if (panel.type == 'bubble') {
+            const mode = panel.mode;
+            if (!mode) {
+                throw "Clustering mode for bubble chart missing";
+            }
+            const valueType = panel.valueType || "";
             const maxBubbleSize = panel.maxBubbleSize || 10;
             // initialize an empty array so that when socket.io emits messages in, it will store the data in the array
             ws.writeLine("@observable array = [];");
@@ -108,20 +113,22 @@ module.exports = function(storeName, panel, pageDirectory){
             ws.writeLine("deviceDict = {};");
             // initialize the device transition dictionary
             ws.writeLine("oldDeviceDict = {};");
+            // initilize mode variable
+            ws.writeLine(`mode = '${mode}';`);
+            // initialize valueType variable
+            ws.writeLine(`valueType = '${valueType}';`);
             // symbol size logic
             ws.writeLine("maxValue = 0;");
             ws.writeLine(`maxSize = ${maxBubbleSize};`);
             // initialzie bubble factory
             ws.writeLine("@computed get bubble" + EchartAdaptor.bubble.toString().replace('function', ''));
             // switch bubble chart modes
-            if (!panel.mode) {
-                throw "Clustering mode for bubble chart missing";
-            }
-            else if (panel.mode === 'pre-clustered') {
+            
+            if (mode === 'pre-clustered') {
                 ws.writeLine(__AddCentroids__);
             }
             // count mode logic
-            else if (panel.mode === 'count') {
+            else if (mode === 'count' || mode === 'average') {
                 const historyLength = (panel.historyLength || 60) * 60 * 1000;
                 const transitionPeriod = (panel.transitionPeriod || 0) * 1000;
                 ws.writeLine(__AddDataForClustering__(transitionPeriod));
@@ -181,7 +188,7 @@ const __AddDataForClustering__ = (transitionPeriod) => "addDataPointsArray (data
             this.oldDeviceDict[`${datum.deviceId}__${now}`] = this.deviceDict[datum.deviceId];\n\
             setTimeout(() => delete this.oldDeviceDict[`${datum.deviceId}__${now}`], transitionPeriod);\n\
         }\n\
-        this.deviceDict[datum.deviceId] = [datum.x, datum.y, datum.deviceId, now]\n\
+        this.deviceDict[datum.deviceId] = [datum.x, datum.y, datum.deviceId, now, datum.value]\n\
     });\n\
     const points = Object.values(this.deviceDict);\n\
     const fitted = fit(points, 10, 5);\n\
@@ -189,6 +196,11 @@ const __AddDataForClustering__ = (transitionPeriod) => "addDataPointsArray (data
         assignTransitioningDevices(fitted);\n\
     }\n\
     this.array = fitted[0].map(fitResults => {\n\
-        if (fitResults.points.length > this.maxValue) this.maxValue = fitResults.points.length;\n\
-        return [fitResults.centroid[0], fitResults.centroid[1], fitResults.points.length]});\n\
+        let averageOrLength = fitResults.points.length;\n\
+        if(this.mode === 'average') {\n\
+            averageOrLength = fitResults.points.reduce((acc, curr) => acc + curr[4], 0) / fitResults.points.length;\n\
+            if (averageOrLength > this.maxValue) this.maxValue = averageOrLength;\n\
+        }\n\
+        if (this.mode === 'count' && averageOrLength > this.maxValue) this.maxValue = averageOrLength;\n\
+        return [fitResults.centroid[0], fitResults.centroid[1], averageOrLength]});\n\
 };\n"

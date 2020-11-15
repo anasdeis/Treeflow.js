@@ -10,7 +10,5 @@ setInterval(() => {
             delete store.deviceDict[device];
         }
     }
-    const points = Object.values(store.deviceDict);
-    const fitted = fit(points, 10, 5);
-    store.array = fitted[0].map(fitResults => [fitResults.centroid[0], fitResults.centroid[1], fitResults.points.length]);
+    store.addDataPointsArray([]);
 }, 30000);
