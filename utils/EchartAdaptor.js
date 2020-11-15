@@ -236,6 +236,10 @@ module.exports = {
         const data = [];
         const that = this;
         this.array.forEach(element => data.push(element));
+        data.sort((firstEl, secondEl) =>{
+            const distToZero = (x, y) => Math.sqrt(x*x + y*y);
+            return distToZero(firstEl[0], firstEl[1]) - distToZero(secondEl[0] - secondEl[1]);
+        });
 
         const option = {
             title: {

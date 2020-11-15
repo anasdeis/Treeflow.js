@@ -96,6 +96,7 @@
         {
           "type": "bubble",
           "mode": "count",
+          "maxBubbleSize": 30,
           "store": {
             "socket":{
               "id": "0",

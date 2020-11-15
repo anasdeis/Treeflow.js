@@ -14,13 +14,18 @@ console.log('emitting initial dict');
 socket.emit('newDataPoints', {id: 0, centroids: Object.values(deviceDict)});
 
 setInterval(() => {
-    const updatedDevice = Math.floor(Math.random() * numDevices)
-    const deviceKey = `device${updatedDevice}`
-    const newX = clamp(randomize(deviceDict[deviceKey].x), 0, 100)
-    const newY = clamp(randomize(deviceDict[deviceKey].y), 0, 100)
-    deviceDict[deviceKey] = {x: newX, y: newY, deviceId: deviceKey};
-    console.log('emitting update for device', deviceKey);
-    socket.emit('newDataPoints', {id: 0, centroids: [deviceDict[deviceKey]]});
+    const updates = [];
+    for (let i = 0; i < Math.random() * 10; i++) {
+        const updatedDevice = Math.floor(Math.random() * numDevices)
+        const deviceKey = `device${updatedDevice}`
+        const newX = clamp(randomize(deviceDict[deviceKey].x), 0, 100)
+        const newY = clamp(randomize(deviceDict[deviceKey].y), 0, 100)
+        const update = {x: newX, y: newY, deviceId: deviceKey}
+        updates.push(update);
+        deviceDict[deviceKey] = update;
+    }
+    console.log('emitting update for', i, 'devices');
+    socket.emit('newDataPoints', {id: 0, centroids: updates});
     console.log('sent');
 }, 5000)
 
