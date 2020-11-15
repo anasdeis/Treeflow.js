@@ -101,14 +101,49 @@ module.exports = function(storeName, panel, pageDirectory){
 
             ws.writeLine(__AddDataPoints__);
         } else if (panel.type == 'bubble') {
+            const maxBubbleSize = panel.maxBubbleSize || 10;
             // initialize an empty array so that when socket.io emits messages in, it will store the data in the array
             ws.writeLine("@observable array = [];");
+            // initialize a dictionary to store per-device value
+            ws.writeLine("deviceDict = {};");
+            // initialize the device transition dictionary
+            ws.writeLine("oldDeviceDict = {};");
+            // symbol size logic
+            ws.writeLine("maxValue = 0;");
+            ws.writeLine(`maxSize = ${maxBubbleSize};`);
+            // initialzie bubble factory
             ws.writeLine("@computed get bubble" + EchartAdaptor.bubble.toString().replace('function', ''));
+            // switch bubble chart modes
             if (!panel.mode) {
                 throw "Clustering mode for bubble chart missing";
             }
             else if (panel.mode === 'pre-clustered') {
                 ws.writeLine(__AddCentroids__);
+            }
+            // count mode logic
+            else if (panel.mode === 'count') {
+                const historyLength = (panel.historyLength || 60) * 60 * 1000;
+                const transitionPeriod = (panel.transitionPeriod || 0) * 1000;
+                ws.writeLine(__AddDataForClustering__(transitionPeriod));
+                
+                // Copy mean shift code block
+                fs.readFile('./utils/code-blocks/meanShift.js', 'utf8', (err, data) => {
+                    if (err) throw err;
+                    ws.writeLine(data);
+                });
+
+                // Copy history length handling code block
+                fs.readFile('./utils/code-blocks/historyLengthInterval.js', 'utf-8', (err, template) => {
+                    if (err) throw err;
+                    const intervalCode = template.replace("60 * 60 * 1000", `${historyLength}`);
+                    ws.writeLine(intervalCode);
+                });
+
+                // Copy transitioning devices handling code block
+                fs.readFile('./utils/code-blocks/assignTransitioningDevices.js', 'utf-8', (err, data) => {
+                    if (err) throw err;
+                    ws.writeLine(data);
+                });
             }
         }
         ws.writeLine(__ClassFooter(storeName));
@@ -119,7 +154,7 @@ const __StoreFileDir = (pageDirectory,storeName) => {return pageDirectory+'/'+st
 const __ClassName = (storeName) => {return "class "+storeName+"{"};
 const __ClassFooter = (storeName) => {return "}\
 var store = window.store = new " + storeName +";\
-export default store"
+export default store;"
 }
 const __StoreFileDependencies__ = "import { autorun, observable, computed} from 'mobx';\nimport echarts from 'echarts';"
 const __BasicFunctions__ = "reset(){this.map=this.map.map(e=>{return 0})}\
@@ -137,3 +172,23 @@ this.array[gateIndex]=array;\
 const __AddCentroids__ = "addDataPointsArray (data){\
     this.array = data.map(centroid => [centroid.x, centroid.y, centroid.size, centroid.label]);\
 };"
+
+const __AddDataForClustering__ = (transitionPeriod) => "addDataPointsArray (data) {\n\
+    const transitionPeriod = " + transitionPeriod + ";\n\
+    const now = Date.now();\n\
+    data.forEach((datum) => {\n\
+        if (this.deviceDict[datum.deviceId] && transitionPeriod) {\n\
+            this.oldDeviceDict[`${datum.deviceId}__${now}`] = this.deviceDict[datum.deviceId];\n\
+            setTimeout(() => delete this.oldDeviceDict[`${datum.deviceId}__${now}`], transitionPeriod);\n\
+        }\n\
+        this.deviceDict[datum.deviceId] = [datum.x, datum.y, datum.deviceId, now]\n\
+    });\n\
+    const points = Object.values(this.deviceDict);\n\
+    const fitted = fit(points, 10, 5);\n\
+    if(transitionPeriod) {\n\
+        assignTransitioningDevices(fitted);\n\
+    }\n\
+    this.array = fitted[0].map(fitResults => {\n\
+        if (fitResults.points.length > this.maxValue) this.maxValue = fitResults.points.length;\n\
+        return [fitResults.centroid[0], fitResults.centroid[1], fitResults.points.length]});\n\
+};\n"
