@@ -265,7 +265,10 @@ module.exports = {
                 data: data,
                 type: 'scatter',
                 symbolSize: function (data) {
-                    return (data[2] / that.maxValue) * that.maxSize;
+                    switch(that.mode) {
+                        case 'pre-clustered': return data[2];
+                        default: return (data[2] / that.maxValue) * that.maxSize;
+                    }
                 },
                 emphasis: {
                     label: {

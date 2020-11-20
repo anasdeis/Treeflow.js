@@ -15,7 +15,8 @@ socket.emit('newDataPoints', {id: 0, centroids: Object.values(deviceDict)});
 
 setInterval(() => {
     const updates = [];
-    for (let i = 0; i < Math.random() * 10; i++) {
+    let i;
+    for (i = 0; i < Math.random() * 10; i++) {
         const updatedDevice = Math.floor(Math.random() * numDevices)
         const deviceKey = `device${updatedDevice}`
         const newX = clamp(randomize(deviceDict[deviceKey].x), 0, 100)
