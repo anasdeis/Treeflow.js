@@ -234,7 +234,12 @@ module.exports = {
     bubble: function () {
 
         const data = [];
+        const that = this;
         this.array.forEach(element => data.push(element));
+        data.sort((firstEl, secondEl) =>{
+            const distToZero = (x, y) => Math.sqrt(x*x + y*y);
+            return distToZero(firstEl[0], firstEl[1]) - distToZero(secondEl[0] - secondEl[1]);
+        });
 
         const option = {
             title: {
@@ -260,13 +265,13 @@ module.exports = {
                 data: data,
                 type: 'scatter',
                 symbolSize: function (data) {
-                    return data[2];
+                    return (data[2] / that.maxValue) * that.maxSize;
                 },
                 emphasis: {
                     label: {
                         show: true,
                         formatter: function (param) {
-                            return param.data[3];
+                            return `${param.data[2]} devices contributing`;
                         },
                         position: 'top'
                     }
