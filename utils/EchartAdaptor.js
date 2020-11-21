@@ -265,13 +265,20 @@ module.exports = {
                 data: data,
                 type: 'scatter',
                 symbolSize: function (data) {
-                    return (data[2] / that.maxValue) * that.maxSize;
+                    switch(that.mode) {
+                        case 'pre-clustered': return data[2];
+                        default: return (data[2] / that.maxValue) * that.maxSize;
+                    }
                 },
                 emphasis: {
                     label: {
                         show: true,
                         formatter: function (param) {
-                            return `${param.data[2]} devices contributing`;
+                            switch (that.mode) {
+                                case 'average': return `Average: ${param.data[2].toFixed(2)} ${that.valueType}`;
+                                case 'count': return `${param.data[2]} devices contributing`;
+                                default: return param.data[3];
+                            }
                         },
                         position: 'top'
                     }

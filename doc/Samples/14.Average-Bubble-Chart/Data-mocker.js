@@ -7,6 +7,7 @@ for (let i = 0; i < numDevices; i++) {
     deviceDict[`device${i}`] = {
         x: Math.random() * 100,
         y: Math.random() * 100,
+        value: Math.random() * 40,
         deviceId: `device${i}`
     }
 }
@@ -17,11 +18,12 @@ setInterval(() => {
     const updates = [];
     let i;
     for (i = 0; i < Math.random() * 10; i++) {
-        const updatedDevice = Math.floor(Math.random() * numDevices)
-        const deviceKey = `device${updatedDevice}`
-        const newX = clamp(randomize(deviceDict[deviceKey].x), 0, 100)
-        const newY = clamp(randomize(deviceDict[deviceKey].y), 0, 100)
-        const update = {x: newX, y: newY, deviceId: deviceKey}
+        const updatedDevice = Math.floor(Math.random() * numDevices);
+        const deviceKey = `device${updatedDevice}`;
+        const newX = clamp(randomize(deviceDict[deviceKey].x), 0, 100);
+        const newY = clamp(randomize(deviceDict[deviceKey].y), 0, 100);
+        const newValue = clamp(randomize(deviceDict[deviceKey].value), 0, 40);
+        const update = {x: newX, y: newY, value: newValue, deviceId: deviceKey};
         updates.push(update);
         deviceDict[deviceKey] = update;
     }
