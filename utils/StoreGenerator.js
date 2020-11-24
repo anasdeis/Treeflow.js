@@ -18,10 +18,11 @@ module.exports = function(storeName, panel, pageDirectory){
         var ws = fs.createWriteStream(__StoreFileDir(pageDirectory,storeName), {flags:'a'});
         ws.writeLine=(str)=>{ws.write('\n');ws.write(str);};
         ws.writeLine(__StoreFileDependencies__);
+        if (panel.type == 'bin') ws.writeLine(__StoreFileDependenciesBinChart__);
         ws.writeLine(__ClassName(storeName));
 
         //write
-        ws.writeLine(__BasicFunctions__);
+        if (panel.type != 'bin') ws.writeLine(__BasicFunctions__);
         if (panel.type == 'formset'){
             // map user inputed values , formset is represented by map
             if(panel.store) {
@@ -123,7 +124,7 @@ module.exports = function(storeName, panel, pageDirectory){
             // initialzie bubble factory
             ws.writeLine("@computed get bubble" + EchartAdaptor.bubble.toString().replace('function', ''));
             // switch bubble chart modes
-            
+
             if (mode === 'pre-clustered') {
                 ws.writeLine(__AddCentroids__);
             }
@@ -132,7 +133,7 @@ module.exports = function(storeName, panel, pageDirectory){
                 const historyLength = (panel.historyLength || 60) * 60 * 1000;
                 const transitionPeriod = (panel.transitionPeriod || 0) * 1000;
                 ws.writeLine(__AddDataForClustering__(transitionPeriod));
-                
+
                 // Copy mean shift code block
                 fs.readFile('./utils/code-blocks/meanShift.js', 'utf8', (err, data) => {
                     if (err) throw err;
@@ -152,7 +153,12 @@ module.exports = function(storeName, panel, pageDirectory){
                     ws.writeLine(data);
                 });
             }
+        } else if (panel.type == 'bin') {
+            ws.writeLine("@observable x = [];\n@observable y = [];");
+            ws.writeLine("@computed get bin" + EchartAdaptor.bin.toString().replace('function', ''));
+            ws.writeLine(__AddGridPoints__);
         }
+
         ws.writeLine(__ClassFooter(storeName));
     });
 }
@@ -164,16 +170,17 @@ var store = window.store = new " + storeName +";\
 export default store;"
 }
 const __StoreFileDependencies__ = "import { autorun, observable, computed} from 'mobx';\nimport echarts from 'echarts';"
+const __StoreFileDependenciesBinChart__ = "import {computeBins2dHeatmap}  from '../lib/histogram/histogram.js';"
 const __BasicFunctions__ = "reset(){this.map=this.map.map(e=>{return 0})}\
 changeValue(value,param){this.map[param]=value;}"
-const __AddDataPoints__ = "addDataPoints (x,y,gateIndex){\
-    for (let i = 0; i < gateIndex - this.array.length + 1; i++) {this.array.push([]);}\
-    this.array[gateIndex].push([x,y])};\n\
-    setArray(array,gateIndex){\
-    for (let i = 0; i < gateIndex - this.array.length + 1; i++) {\
+const __AddDataPoints__ = "addDataPoints (body){\
+    for (let i = 0; i < body.gateIndex - this.array.length + 1; i++) {this.array.push([]);}\
+    this.array[body.gateIndex].push([body.x,body.y])};\n\
+    setArray(array,body.gateIndex){\
+    for (let i = 0; i < body.gateIndex - this.array.length + 1; i++) {\
     this.array.push([]);\
 }\
-this.array[gateIndex]=array;\
+this.array[body.gateIndex]=array;\
 };"
 
 const __AddCentroids__ = "addDataPointsArray (data){\
@@ -204,3 +211,8 @@ const __AddDataForClustering__ = (transitionPeriod) => "addDataPointsArray (data
         if (this.mode === 'count' && averageOrLength > this.maxValue) this.maxValue = averageOrLength;\n\
         return [fitResults.centroid[0], fitResults.centroid[1], averageOrLength]});\n\
 };\n"
+
+const __AddGridPoints__ = "addDataPoints (data){\
+        this.x.push(data.x);\
+        this.y.push(data.y);\
+};"

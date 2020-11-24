@@ -91,6 +91,12 @@ module.exports = function (pages, path) {
                         panelViews.push("<Panel title = \"" + panel.name + "\">\
                         <Echarts style={{width:'100%',height:'365px'}} option={"+storeName+"_bubble}/>\
                     </Panel>");
+                } else if (panel.type == 'bin'){
+                    sockets.push({id:panel.store.socket.id, storeName});
+                    panelStoreConnectors.push("const " + storeName + "_bin = this.props."+storeName+".bin;");
+                    panelViews.push("<Panel title = \"" + panel.name + "\">\
+                        <Echarts style={{width:'100%',height:'365px'}} option={"+storeName+"_bin}/>\
+                    </Panel>");
                 } else if (panel.type == 'pie'){
                     sockets.push({id:panel.store.socket.id, storeName});
                     panelStoreConnectors.push("const " + storeName + "_pie = this.props."+storeName+".pie;");
