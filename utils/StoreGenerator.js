@@ -89,16 +89,16 @@ module.exports = function(storeName, panel, pageDirectory){
             ws.writeLine('}');
         } else if(panel.type == 'scatter' || panel.type == 'pie' || panel.type == 'graph' || panel.type == 'stackedgraph') {
             // initialize an empty array so that when socket.io emits messages in, it will store the data in the array
-            ws.writeLine("@observable array = [];");
+            ws.writeLine("\t@observable array = [];\n");
             // form  based on headers definition in the Config.json
             if(panel.type == 'scatter')
-                ws.writeLine("@computed get scatter"+EchartAdaptor.scatter.toString().replace('function',''));
+                ws.writeLine("\t@computed get scatter"+EchartAdaptor.scatter.toString().replace('function',''));
             else if(panel.type == 'pie')
-                ws.writeLine("@computed get pie"+EchartAdaptor.pie.toString().replace('function',''));
+                ws.writeLine("\t@computed get pie"+EchartAdaptor.pie.toString().replace('function',''));
             else if (panel.type == 'graph')
-                ws.writeLine("@computed get graph" + EchartAdaptor.graph.toString().replace('function', ''));
+                ws.writeLine("\t@computed get graph" + EchartAdaptor.graph.toString().replace('function', ''));
             else if(panel.type == 'stackedgraph')
-                ws.writeLine("@computed get stackedGraph" + EchartAdaptor.stackedGraph.toString().replace('function', ''));
+                ws.writeLine("\t@computed get stackedGraph" + EchartAdaptor.stackedGraph.toString().replace('function', ''));
             ws.writeLine(__AddDataPoints__);
         } else if (panel.type == 'bubble') {
             const mode = panel.mode;
@@ -178,17 +178,15 @@ export default store;"
 const __StoreFileDependencies__ = "import { autorun, observable, computed} from 'mobx';"
 const __StoreFileDependenciesBubbleChart__ = "import echarts from 'echarts';"
 const __StoreFileDependenciesBinChart__ = "import {computeBins2dHeatmap}  from '../lib/histogram/histogram.js';"
-const __BasicFunctions__ = "reset(){this.map=this.map.map(e=>{return 0})}\
+const __BasicFunctions__ = "\treset(){this.map=this.map.map(e=>{return 0})}\
 changeValue(value,param){this.map[param]=value;}"
-const __AddDataPoints__ = "addDataPoints (body){\
-    for (let i = 0; i < body.gateIndex - this.array.length + 1; i++) {this.array.push([]);}\
-    this.array[body.gateIndex].push([body.x,body.y])};\n\
-    setArray(array,body.gateIndex){\
-    for (let i = 0; i < body.gateIndex - this.array.length + 1; i++) {\
-    this.array.push([]);\
-}\
-this.array[body.gateIndex]=array;\
-};"
+const __AddDataPoints__ = "\taddDataPoints (body){\n\
+        for (let i = 0; i < body.gateIndex - this.array.length + 1; i++) {this.array.push([]);}\n\
+        this.array[body.gateIndex].push([body.x,body.y])};\n\
+    setArray(array,gateIndex){\n\
+        for (let i = 0; i < body.gateIndex - this.array.length + 1; i++) {this.array.push([]);}\n\
+        this.array[body.gateIndex]=array;\n\
+    };"
 
 const __AddCentroids__ = "addDataPointsArray (data){\
     this.array = data.map(centroid => [centroid.x, centroid.y, centroid.size, centroid.label]);\
