@@ -20,7 +20,7 @@ setInterval(() => {
         return {x: datum[0], y: datum[1], size: Math.sqrt(datum[2]) / 5e2, label: datum[3]}
     });
     console.log('emitting');
-    socket.emit('newDataPoints', {id: 0, centroids: mapped});
+    socket.emit('newDataPoints', {id: 0, data: mapped});
     console.log('sent');
 }, 5000)
 

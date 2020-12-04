@@ -18,10 +18,12 @@ module.exports = function(storeName, panel, pageDirectory){
         var ws = fs.createWriteStream(__StoreFileDir(pageDirectory,storeName), {flags:'a'});
         ws.writeLine=(str)=>{ws.write('\n');ws.write(str);};
         ws.writeLine(__StoreFileDependencies__);
+        if (panel.type == 'bin') ws.writeLine(__StoreFileDependenciesBinChart__);
+        if (panel.type == 'bubble') ws.writeLine(__StoreFileDependenciesBubbleChart__);
         ws.writeLine(__ClassName(storeName));
 
         //write
-        ws.writeLine(__BasicFunctions__);
+        if (panel.type != 'bin') ws.writeLine(__BasicFunctions__);
         if (panel.type == 'formset'){
             // map user inputed values , formset is represented by map
             if(panel.store) {
@@ -97,8 +99,6 @@ module.exports = function(storeName, panel, pageDirectory){
                 ws.writeLine("@computed get graph" + EchartAdaptor.graph.toString().replace('function', ''));
             else if(panel.type == 'stackedgraph')
                 ws.writeLine("@computed get stackedGraph" + EchartAdaptor.stackedGraph.toString().replace('function', ''));
-            
-
             ws.writeLine(__AddDataPoints__);
         } else if (panel.type == 'bubble') {
             const mode = panel.mode;
@@ -123,7 +123,7 @@ module.exports = function(storeName, panel, pageDirectory){
             // initialzie bubble factory
             ws.writeLine("@computed get bubble" + EchartAdaptor.bubble.toString().replace('function', ''));
             // switch bubble chart modes
-            
+
             if (mode === 'pre-clustered') {
                 ws.writeLine(__AddCentroids__);
             }
@@ -132,7 +132,7 @@ module.exports = function(storeName, panel, pageDirectory){
                 const historyLength = (panel.historyLength || 60) * 60 * 1000;
                 const transitionPeriod = (panel.transitionPeriod || 0) * 1000;
                 ws.writeLine(__AddDataForClustering__(transitionPeriod));
-                
+
                 // Copy mean shift code block
                 fs.readFile('./utils/code-blocks/meanShift.js', 'utf8', (err, data) => {
                     if (err) throw err;
@@ -140,7 +140,7 @@ module.exports = function(storeName, panel, pageDirectory){
                 });
 
                 // Copy history length handling code block
-                fs.readFile('./utils/code-blocks/historyLengthInterval.js', 'utf-8', (err, template) => {
+                fs.readFile('./utils/code-blocks/bubbleHistoryLengthInterval.js', 'utf-8', (err, template) => {
                     if (err) throw err;
                     const intervalCode = template.replace("60 * 60 * 1000", `${historyLength}`);
                     ws.writeLine(intervalCode);
@@ -152,28 +152,42 @@ module.exports = function(storeName, panel, pageDirectory){
                     ws.writeLine(data);
                 });
             }
+        } else if (panel.type == 'bin') {
+            ws.writeLine("\t@observable array = [];\n");
+            ws.writeLine("\t@computed get bin" + EchartAdaptor.bin.toString().replace('function', ''));
+            ws.writeLine(__AddGridPoints__);
+
+            // Copy history length handling code block
+            fs.readFile('./utils/code-blocks/binHistoryLengthInterval.js', 'utf-8', (err, data) => {
+                if (err) throw err;
+                ws.writeLine(data);
+            });
+
         }
+
         ws.writeLine(__ClassFooter(storeName));
     });
 }
 
 const __StoreFileDir = (pageDirectory,storeName) => {return pageDirectory+'/'+storeName+'.js'};
 const __ClassName = (storeName) => {return "class "+storeName+"{"};
-const __ClassFooter = (storeName) => {return "}\
-var store = window.store = new " + storeName +";\
+const __ClassFooter = (storeName) => {return "}\n\
+var store = window.store = new " + storeName +";\n\
 export default store;"
 }
-const __StoreFileDependencies__ = "import { autorun, observable, computed} from 'mobx';\nimport echarts from 'echarts';"
+const __StoreFileDependencies__ = "import { autorun, observable, computed} from 'mobx';"
+const __StoreFileDependenciesBubbleChart__ = "import echarts from 'echarts';"
+const __StoreFileDependenciesBinChart__ = "import {computeBins2dHeatmap}  from '../lib/histogram/histogram.js';"
 const __BasicFunctions__ = "reset(){this.map=this.map.map(e=>{return 0})}\
 changeValue(value,param){this.map[param]=value;}"
-const __AddDataPoints__ = "addDataPoints (x,y,gateIndex){\
-    for (let i = 0; i < gateIndex - this.array.length + 1; i++) {this.array.push([]);}\
-    this.array[gateIndex].push([x,y])};\n\
-    setArray(array,gateIndex){\
-    for (let i = 0; i < gateIndex - this.array.length + 1; i++) {\
+const __AddDataPoints__ = "addDataPoints (body){\
+    for (let i = 0; i < body.gateIndex - this.array.length + 1; i++) {this.array.push([]);}\
+    this.array[body.gateIndex].push([body.x,body.y])};\n\
+    setArray(array,body.gateIndex){\
+    for (let i = 0; i < body.gateIndex - this.array.length + 1; i++) {\
     this.array.push([]);\
 }\
-this.array[gateIndex]=array;\
+this.array[body.gateIndex]=array;\
 };"
 
 const __AddCentroids__ = "addDataPointsArray (data){\
@@ -204,3 +218,18 @@ const __AddDataForClustering__ = (transitionPeriod) => "addDataPointsArray (data
         if (this.mode === 'count' && averageOrLength > this.maxValue) this.maxValue = averageOrLength;\n\
         return [fitResults.centroid[0], fitResults.centroid[1], averageOrLength]});\n\
 };\n"
+
+const __AddGridPoints__ = "\taddDataPointsArray(data) {\n\
+        const arrayColumn = (arr, n) => arr.map(x => x[n]);\n\
+        const now = Date.now();\n\
+        let device_idx;\n\
+        data.forEach((datum) => {\n\
+            device_idx = arrayColumn(this.array, 2).indexOf(datum.deviceId)\n\
+            if (device_idx > -1) {\n\
+                this.array.splice(device_idx, 1,[datum.x, datum.y, datum.deviceId, now]);\n\
+            }\n\
+            else{\n\
+                this.array.push([datum.x, datum.y, datum.deviceId, now]);\n\
+            }\n\
+        });\n\
+    };"

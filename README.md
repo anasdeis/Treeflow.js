@@ -34,6 +34,7 @@ npm run sample-6
 npm run sample-7
 npm run sample-8
 npm run sample-9
+...
 
 # the above command will have generated an app folder
 cd app

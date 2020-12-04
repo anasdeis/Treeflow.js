@@ -298,5 +298,66 @@ module.exports = {
             }]
         };
         return option;
+    },
+
+    bin: function () {
+
+        const data = this.array.toJSON();
+        const data_heatmap = (data.length > 0)
+            ? computeBins2dHeatmap(data, null, 10, 10)
+            : [];
+
+        const option = {
+            tooltip: {
+                position: 'top'
+            },
+            title: {
+                left: 'center',
+                text: 'Heatmap'
+            },
+            grid: {
+                top: '10%'
+            },
+            xAxis: {
+                type: 'category',
+                data: data_heatmap.x_axis,
+                splitArea: {
+                    show: true
+                }
+            },
+            yAxis: {
+                type: 'category',
+                data: data_heatmap.y_axis,
+                splitArea: {
+                    show: true
+                }
+            },
+            visualMap: {
+                min: 0,
+                max: 10,
+                calculable: true,
+                left: 'right',
+                top: 'middle'
+            },
+            series: [{
+                name: "Heatmap",
+                type: 'heatmap',
+                data: data_heatmap.data,
+                label: {
+                    show: true,
+                    formatter: (param) => {
+                        return param.data[2];
+                    }
+                },
+                emphasis: {
+                    itemStyle: {
+                        shadowBlur: 10,
+                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    }
+                }
+            }]
+        };
+
+        return option;
     }
 };
