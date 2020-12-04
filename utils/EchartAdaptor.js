@@ -302,12 +302,15 @@ module.exports = {
 
     bin: function () {
 
-        const x_data = this.x.toJSON();
-        const y_data = this.y.toJSON();
-
-        const data_heatmap = (x_data.length > 0 && y_data.length > 0)
-            ? computeBins2dHeatmap(x_data, y_data, null, 10 , 10)
+        const data = this.array.toJSON();
+        const data_heatmap = (data.length > 0)
+            ? computeBins2dHeatmap(data, null, 10, 10)
             : [];
+
+        /*console.log('data')
+        console.log(data)
+        console.log('data heatmap')
+        console.log(data_heatmap.data)*/
 
         const option = {
             tooltip: {

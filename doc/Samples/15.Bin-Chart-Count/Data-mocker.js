@@ -3,16 +3,35 @@ const socket = io('http://localhost:3000');
 
 const numDevices = 100;
 const grid_data = {};
-grid_data.id = 0;
+
+let value;
+for (let i = 0; i < numDevices; i++) {
+    value = random_normal(50,15);
+    grid_data[`device${i}`] = {
+        x: value,
+        y: 3 * value,
+        deviceId: `device${i}`
+    }
+}
+console.log('emitting initial grid');
+socket.emit('newDataPoints', {id: 0, data: Object.values(grid_data)});
 
 setInterval(() => {
-
-    grid_data.x = random_normal(50,15);
-    grid_data.y = 3 * grid_data.x;
-
-    console.log('pushed data.x:', grid_data.x,', data.y:', grid_data.y);
-    socket.emit('newDataPoint', grid_data);
-}, 500)
+    const updates = [];
+    let i;
+    for (i = 0; i < Math.random() * 10; i++) {
+        const updatedDevice = Math.floor(Math.random() * numDevices)
+        const deviceKey = `device${updatedDevice}`
+        const newX = randomize(grid_data[deviceKey].x)
+        const newY = randomize(grid_data[deviceKey].y)
+        const update = {x: newX, y: newY, deviceId: deviceKey}
+        updates.push(update);
+    }
+    console.log('emitting update for', i, 'devices');
+    console.log(updates)
+    socket.emit('newDataPoints', {id: 0, data: updates});
+    console.log('sent');
+}, 5000)
 
 /**
  * Return a gaussian random value using mean and standard deviation using the Marsaglia Polar method
@@ -36,4 +55,15 @@ function random_normal(mean = 0, dev = 1) {
 
     // Shape and scale
     return dev * norm + mean;
+}
+
+/**
+ * Return a random value in range x +/- 10%
+ * @param {*} x
+ */
+function randomize(x) {
+    const variance = 0.20;
+    const multiplier = Math.random() - 0.5;
+    const newValue = x + (x * variance * multiplier);
+    return newValue;
 }

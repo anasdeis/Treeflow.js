@@ -11,7 +11,7 @@ for (let i = 0; i < numDevices; i++) {
     }
 }
 console.log('emitting initial dict');
-socket.emit('newDataPoints', {id: 0, centroids: Object.values(deviceDict)});
+socket.emit('newDataPoints', {id: 0, data: Object.values(deviceDict)});
 
 setInterval(() => {
     const updates = [];
@@ -26,7 +26,7 @@ setInterval(() => {
         deviceDict[deviceKey] = update;
     }
     console.log('emitting update for', i, 'devices');
-    socket.emit('newDataPoints', {id: 0, centroids: updates});
+    socket.emit('newDataPoints', {id: 0, data: updates});
     console.log('sent');
 }, 5000)
 
