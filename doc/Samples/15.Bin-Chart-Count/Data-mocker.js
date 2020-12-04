@@ -20,10 +20,14 @@ setInterval(() => {
     const updates = [];
     let i;
     for (i = 0; i < Math.random() * 10; i++) {
-        const updatedDevice = Math.floor(Math.random() * numDevices)
+        //const updatedDevice = Math.floor(Math.random() * numDevices)
+        const updatedDevice = Math.floor(Math.random() * numDevices * 2)
         const deviceKey = `device${updatedDevice}`
-        const newX = randomize(grid_data[deviceKey].x)
-        const newY = randomize(grid_data[deviceKey].y)
+        //const newX = randomize(grid_data[deviceKey].x)
+        //const newY = randomize(grid_data[deviceKey].y)
+        // If updateDevice can be > numDevices then do not use randomize
+        const newX = random_normal(50,15);
+        const newY = 3 * newX;
         const update = {x: newX, y: newY, deviceId: deviceKey}
         updates.push(update);
     }
