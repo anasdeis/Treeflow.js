@@ -148,7 +148,7 @@ module.exports = function (pages, path) {
                                     }).join('\n')+"}.bind(this));\
                                 this.socket.on('newDataPoints', function(data){"+
                                     sockets.map((e,idx)=>{
-                                        return "if(data.body.id=="+e.id+")this.props."+e.storeName+".addDataPointsArray(data.body.centroids)"
+                                        return "if(data.body.id=="+e.id+")this.props."+e.storeName+".addDataPointsArray(data.body.data)"
                                     }).join('\n')+"}.bind(this));"+"}}");
                     }
                     ws.writeLine("render(){" + panelStoreConnectors[0]);

@@ -15,10 +15,10 @@ const deviceDict = {
 };
 
 console.log('emitting initial dict');
-socket.emit('newDataPoints', {id: 0, centroids: Object.values(deviceDict)});
+socket.emit('newDataPoints', {id: 0, data: Object.values(deviceDict)});
 
 setInterval(() => {
     console.log('emitting update for device device1');
-    socket.emit('newDataPoints', {id: 0, centroids: [deviceDict['device1']]});
+    socket.emit('newDataPoints', {id: 0, data: [deviceDict['device1']]});
     console.log('sent');
 }, 5000);
