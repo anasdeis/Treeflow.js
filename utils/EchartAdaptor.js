@@ -307,11 +307,6 @@ module.exports = {
             ? computeBins2dHeatmap(data, null, 10, 10)
             : [];
 
-        /*console.log('data')
-        console.log(data)
-        console.log('data heatmap')
-        console.log(data_heatmap.data)*/
-
         const option = {
             tooltip: {
                 position: 'top'

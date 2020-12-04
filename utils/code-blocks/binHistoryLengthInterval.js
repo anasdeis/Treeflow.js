@@ -8,7 +8,6 @@ setInterval(() => {
     const now = Date.now();
     for (const device in store.array) {
         if (store.array[device][3] < now - historyLength) {
-            //console.log('delete', store.array[device][2])
             store.array.splice(device, 1);
         }
     }

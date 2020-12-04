@@ -25,6 +25,6 @@ socket.emit('newDataPoints', {id: 0, data: Object.values(deviceDict)});
 setInterval(() => {
     deviceDict['device3'] = {x: 10, y: 10, deviceId: 'device3'}
     console.log('changing device3 to be clustered with device1');
-    socket.emit('newDataPoints', {id: 0, centroids: Object.values(deviceDict)});
+    socket.emit('newDataPoints', {id: 0, data: Object.values(deviceDict)});
     console.log('sent');
 }, 5000);
