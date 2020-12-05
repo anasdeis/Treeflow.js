@@ -6,10 +6,10 @@ const grid_data = {};
 
 let value;
 for (let i = 0; i < numDevices; i++) {
-    value = random_normal(50,15);
     grid_data[`device${i}`] = {
-        x: value,
-        y: 3 * value,
+        x: random_normal(50,15),
+        y: random_normal(50,15),
+        value: Math.random() * 40,
         deviceId: `device${i}`
     }
 }
@@ -23,12 +23,17 @@ setInterval(() => {
         //const updatedDevice = Math.floor(Math.random() * numDevices)
         const updatedDevice = Math.floor(Math.random() * numDevices * 2)
         const deviceKey = `device${updatedDevice}`
+
         //const newX = randomize(grid_data[deviceKey].x)
         //const newY = randomize(grid_data[deviceKey].y)
+        //const newValue = randomize(grid_data[deviceKey].value);
+
         // If updateDevice can be > numDevices then do not use randomize
         const newX = random_normal(50,15);
-        const newY = 3 * newX;
-        const update = {x: newX, y: newY, deviceId: deviceKey}
+        const newY = random_normal(50,15);
+        const newValue = Math.random() * 40;
+
+        const update = {x: newX, y: newY, value: newValue, deviceId: deviceKey};
         updates.push(update);
     }
     console.log('emitting update for', i, 'devices');
