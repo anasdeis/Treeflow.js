@@ -161,7 +161,7 @@ module.exports = function(storeName, panel, pageDirectory){
                 throw "Please input a valid mode for bin chart. Ex: 'count', 'average'.";
             }
 
-            const valueType = panel.valueType || "";
+
             const maxBinColor = panel.maxBinColor || 10;
             const numberOfBinsX = panel.numberOfBinsX;
             const numberOfBinsY = panel.numberOfBinsY;
@@ -171,18 +171,22 @@ module.exports = function(storeName, panel, pageDirectory){
                 throw "Please input a valid method for bin chart or leave it out to use 'squareRoot' as default.";
             }
 
+            if(mode === 'average') {
+                const valueType = panel.valueType || "";
+                // initialize valueType variable
+                ws.writeLine(`\tvalueType = '${valueType}';`);
+            }
+
             // initialize mode variable
-            ws.writeLine(`mode = '${mode}';`);
-            // initialize valueType variable
-            ws.writeLine(`valueType = '${valueType}';`);
+            ws.writeLine(`\tmode = '${mode}';`);
             // initialize maxBinColor variable
-            ws.writeLine(`maxBinColor = ${maxBinColor};`);
+            ws.writeLine(`\tmaxBinColor = ${maxBinColor};`);
             // initialize method variable
-            ws.writeLine(`method = ${method};`);
+            ws.writeLine(`\tbinMethod = ${binMethod};`);
             // initialize numberOfBinsX variable
-            ws.writeLine(`numberOfBinsX = ${numberOfBinsX};`);
+            ws.writeLine(`\tnumberOfBinsX = ${numberOfBinsX};`);
             // initialize numberOfBinsY variable
-            ws.writeLine(`numberOfBinsY = ${numberOfBinsY};`);
+            ws.writeLine(`\tnumberOfBinsY = ${numberOfBinsY};`);
 
             ws.writeLine("\t@observable array = [];\n");
             ws.writeLine("\t@computed get bin" + EchartAdaptor.bin.toString().replace('function', ''));

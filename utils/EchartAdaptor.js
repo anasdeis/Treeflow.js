@@ -308,17 +308,17 @@ module.exports = {
         switch(self.mode) {
             case 'count':
                 data_heatmap = (data.length > 0)
-                    ? computeBins2dHeatmap(data, self.method, self.numberOfBinsX, self.numberOfBinsY)
+                    ? computeBins2dHeatmap(data, self.binMethod, self.numberOfBinsX, self.numberOfBinsY)
                     : [];
                 break;
             case 'average':
                 data_heatmap = (data.length > 0)
-                    ? computeBins2dHeatmapAverage(data, self.method, self.numberOfBinsX, self.numberOfBinsY)
+                    ? computeBins2dHeatmapAverage(data, self.binMethod, self.numberOfBinsX, self.numberOfBinsY)
                     : [];
                 break;
             default:
                 data_heatmap = (data.length > 0)
-                    ? computeBins2dHeatmap(data, self.method, self.numberOfBinsX, self.numberOfBinsY)
+                    ? computeBins2dHeatmap(data, self.binMethod, self.numberOfBinsX, self.numberOfBinsY)
                     : [];
         }
 
