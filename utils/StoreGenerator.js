@@ -165,9 +165,9 @@ module.exports = function(storeName, panel, pageDirectory){
             const maxBinColor = panel.maxBinColor || 10;
             const numberOfBinsX = panel.numberOfBinsX;
             const numberOfBinsY = panel.numberOfBinsY;
-            const method = panel.method;
-            const method_inputs = ["squareRoot", "scott", "freedmanDiaconis", "sturges"];
-            if (method != undefined && !method_inputs.includes(method)) {
+            const binMethod = panel.binMethod;
+            const binMethod_inputs = ["squareRoot", "scott", "freedmanDiaconis", "sturges"];
+            if (binMethod != undefined && !binMethod_inputs.includes(binMethod)) {
                 throw "Please input a valid method for bin chart or leave it out to use 'squareRoot' as default.";
             }
 

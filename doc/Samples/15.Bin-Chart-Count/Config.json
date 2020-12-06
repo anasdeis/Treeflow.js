@@ -98,7 +98,7 @@
           "mode": "count",
           "maxBinColor": "15",
           "historyLength": 1,
-          "method": null,
+          "binMethod": null,
           "numberOfBinsX": null,
           "numberOfBinsY": null,
           "store": {

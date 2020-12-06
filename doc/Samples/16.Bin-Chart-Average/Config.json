@@ -99,7 +99,7 @@
           "valueType": "km/h",
           "maxBinColor": 40,
           "historyLength": 1,
-          "method": null,
+          "binMethod": null,
           "numberOfBinsX": null,
           "numberOfBinsY": null,
           "store": {
