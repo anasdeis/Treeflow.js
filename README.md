@@ -35,6 +35,7 @@ npm run sample-7
 npm run sample-8
 npm run sample-9
 ...
+npm run sample-16
 
 # the above command will have generated an app folder
 cd app
@@ -45,7 +46,7 @@ npm install
 # Start the node server
 node index.js 
 
-# For sample 3, 4, 5, 6, you can use the included Data-Mocker to generate data for the graphs
+# For all samples except for 1,2,9 you can use the included Data-Mocker to generate data for the graphs
 # In a different shell while the server is running, run
 node Data-Mocker.js
 ```

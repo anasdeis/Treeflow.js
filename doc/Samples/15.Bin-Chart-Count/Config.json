@@ -96,7 +96,11 @@
         {
           "type": "bin",
           "mode": "count",
-          "maxBinColor:": 20,
+          "maxBinColor": "15",
+          "historyLength": 1,
+          "binMethod": null,
+          "numberOfBinsX": null,
+          "numberOfBinsY": null,
           "store": {
             "socket":{
               "id": "0",

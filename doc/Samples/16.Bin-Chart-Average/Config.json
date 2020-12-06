@@ -96,7 +96,12 @@
         {
           "type": "bin",
           "mode": "average",
-          "maxBinColor:": 20,
+          "valueType": "km/h",
+          "maxBinColor": 40,
+          "historyLength": 1,
+          "binMethod": null,
+          "numberOfBinsX": null,
+          "numberOfBinsY": null,
           "store": {
             "socket":{
               "id": "0",

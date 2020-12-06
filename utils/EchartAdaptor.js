@@ -302,10 +302,25 @@ module.exports = {
 
     bin: function () {
 
+        const self = this;
         const data = this.array.toJSON();
-        const data_heatmap = (data.length > 0)
-            ? computeBins2dHeatmap(data, null, 10, 10)
-            : [];
+        let data_heatmap = {};
+        switch(self.mode) {
+            case 'count':
+                data_heatmap = (data.length > 0)
+                    ? computeBins2dHeatmap(data, self.binMethod, self.numberOfBinsX, self.numberOfBinsY)
+                    : [];
+                break;
+            case 'average':
+                data_heatmap = (data.length > 0)
+                    ? computeBins2dHeatmapAverage(data, self.binMethod, self.numberOfBinsX, self.numberOfBinsY)
+                    : [];
+                break;
+            default:
+                data_heatmap = (data.length > 0)
+                    ? computeBins2dHeatmap(data, self.binMethod, self.numberOfBinsX, self.numberOfBinsY)
+                    : [];
+        }
 
         const option = {
             tooltip: {
@@ -334,19 +349,22 @@ module.exports = {
             },
             visualMap: {
                 min: 0,
-                max: 10,
+                max: self.maxBinColor,
                 calculable: true,
                 left: 'right',
                 top: 'middle'
             },
             series: [{
-                name: "Heatmap",
+                name: `${self.mode}`,
                 type: 'heatmap',
                 data: data_heatmap.data,
                 label: {
                     show: true,
-                    formatter: (param) => {
-                        return param.data[2];
+                    formatter: function (param) {
+                        switch (self.mode) {
+                            case 'average': return `${param.data[2]} ${self.valueType}`;
+                            default: return param.data[2];
+                        }
                     }
                 },
                 emphasis: {

@@ -21,6 +21,7 @@
         "sample-13": "node Compiler.js doc/Samples/13.Bubble-Chart-transition-period/Config.json && cp doc/Samples/13.Bubble-Chart-transition-period/Data-mocker.js ./app",
         "sample-14": "node Compiler.js doc/Samples/14.Average-Bubble-Chart/Config.json && cp doc/Samples/14.Average-Bubble-Chart/Data-mocker.js ./app",
         "sample-15": "node Compiler.js doc/Samples/15.Bin-Chart-Count/Config.json && cp doc/Samples/15.Bin-Chart-Count/Data-mocker.js ./app",
+        "sample-16": "node Compiler.js doc/Samples/16.Bin-Chart-Average/Config.json && cp doc/Samples/16.Bin-Chart-Average/Data-mocker.js ./app",
         "beautify": "find ./app -regex '.*\\.js' -exec js-beautify {} -r \\;"
     },
     "repository": {
