@@ -113,14 +113,14 @@ module.exports = function(storeName, panel, pageDirectory){
             ws.writeLine("deviceDict = {};");
             // initialize the device transition dictionary
             ws.writeLine("oldDeviceDict = {};");
-            // initilize mode variable
+            // initialize mode variable
             ws.writeLine(`mode = '${mode}';`);
             // initialize valueType variable
             ws.writeLine(`valueType = '${valueType}';`);
             // symbol size logic
             ws.writeLine("maxValue = 0;");
             ws.writeLine(`maxSize = ${maxBubbleSize};`);
-            // initialzie bubble factory
+            // initialize bubble factory
             ws.writeLine("@computed get bubble" + EchartAdaptor.bubble.toString().replace('function', ''));
             // switch bubble chart modes
 
@@ -153,16 +153,49 @@ module.exports = function(storeName, panel, pageDirectory){
                 });
             }
         } else if (panel.type == 'bin') {
+            const mode = panel.mode;
+            const mode_inputs = ["count", "average"];
+            if (!mode) {
+                throw "Please input a mode for bin chart.";
+            } else if (!mode_inputs.includes(mode)) {
+                throw "Please input a valid mode for bin chart. Ex: 'count', 'average'.";
+            }
+
+            const valueType = panel.valueType || "";
+            const maxBinColor = panel.maxBinColor || 10;
+            const numberOfBinsX = panel.numberOfBinsX;
+            const numberOfBinsY = panel.numberOfBinsY;
+            const method = panel.method;
+            const method_inputs = ["squareRoot", "scott", "freedmanDiaconis", "sturges"];
+            if (method != undefined && !method_inputs.includes(method)) {
+                throw "Please input a valid method for bin chart or leave it out to use 'squareRoot' as default.";
+            }
+
+            // initialize mode variable
+            ws.writeLine(`mode = '${mode}';`);
+            // initialize valueType variable
+            ws.writeLine(`valueType = '${valueType}';`);
+            // initialize maxBinColor variable
+            ws.writeLine(`maxBinColor = ${maxBinColor};`);
+            // initialize method variable
+            ws.writeLine(`method = ${method};`);
+            // initialize numberOfBinsX variable
+            ws.writeLine(`numberOfBinsX = ${numberOfBinsX};`);
+            // initialize numberOfBinsY variable
+            ws.writeLine(`numberOfBinsY = ${numberOfBinsY};`);
+
             ws.writeLine("\t@observable array = [];\n");
             ws.writeLine("\t@computed get bin" + EchartAdaptor.bin.toString().replace('function', ''));
             ws.writeLine(__AddGridPoints__);
 
-            // Copy history length handling code block
-            fs.readFile('./utils/code-blocks/binHistoryLengthInterval.js', 'utf-8', (err, data) => {
-                if (err) throw err;
-                ws.writeLine(data);
-            });
+            const historyLength = (panel.historyLength || 60) * 60 * 1000;
 
+            // Copy history length handling code block
+            fs.readFile('./utils/code-blocks/binHistoryLengthInterval.js', 'utf-8', (err, template) => {
+                if (err) throw err;
+                const intervalCode = template.replace("60 * 60 * 1000", `${historyLength}`);
+                ws.writeLine(intervalCode);
+            });
         }
 
         ws.writeLine(__ClassFooter(storeName));
@@ -173,11 +206,11 @@ const __StoreFileDir = (pageDirectory,storeName) => {return pageDirectory+'/'+st
 const __ClassName = (storeName) => {return "class "+storeName+"{"};
 const __ClassFooter = (storeName) => {return "}\n\
 var store = window.store = new " + storeName +";\n\
-export default store;"
+export default store;\n"
 }
 const __StoreFileDependencies__ = "import { autorun, observable, computed} from 'mobx';"
 const __StoreFileDependenciesBubbleChart__ = "import echarts from 'echarts';"
-const __StoreFileDependenciesBinChart__ = "import {computeBins2dHeatmap}  from '../lib/histogram/histogram.js';"
+const __StoreFileDependenciesBinChart__ = "import {computeBins2dHeatmap, computeBins2dHeatmapAverage} from '../lib/histogram/histogram.js';"
 const __BasicFunctions__ = "\treset(){this.map=this.map.map(e=>{return 0})}\
 changeValue(value,param){this.map[param]=value;}"
 const __AddDataPoints__ = "\taddDataPoints (body){\n\
@@ -224,10 +257,10 @@ const __AddGridPoints__ = "\taddDataPointsArray(data) {\n\
         data.forEach((datum) => {\n\
             device_idx = arrayColumn(this.array, 2).indexOf(datum.deviceId)\n\
             if (device_idx > -1) {\n\
-                this.array.splice(device_idx, 1,[datum.x, datum.y, datum.deviceId, now]);\n\
+                this.array.splice(device_idx, 1,[datum.x, datum.y, datum.deviceId, now, datum.value]);\n\
             }\n\
             else{\n\
-                this.array.push([datum.x, datum.y, datum.deviceId, now]);\n\
+                this.array.push([datum.x, datum.y, datum.deviceId, now, datum.value]);\n\
             }\n\
         });\n\
     };"
