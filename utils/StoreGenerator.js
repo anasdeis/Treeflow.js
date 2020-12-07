@@ -102,9 +102,16 @@ module.exports = function(storeName, panel, pageDirectory){
             ws.writeLine(__AddDataPoints__);
         } else if (panel.type == 'bubble') {
             const mode = panel.mode;
-            if (!mode) {
-                throw "Clustering mode for bubble chart missing";
+            if (!["pre-clustered", "count", "average"].includes(mode)) {
+                throw "Clustering mode for bubble chart is missing or invalid";
             }
+            if (mode !== "pre-clustered" && (
+                !panel.bandwidthRadius || !panel.deduplicationRadius || typeof(panel.bandwidthRadius) !== 'number' 
+                || typeof(panel.deduplicationRadius) !== 'number')) {
+                throw "Clustering hyperparameters missing or invlaid";
+            }
+            const bandwidthRadius = panel.bandwidthRadius || 0;
+            const deduplicationRadius = panel.deduplicationRadius || 0;
             const valueType = panel.valueType || "";
             const maxBubbleSize = panel.maxBubbleSize || 10;
             // initialize an empty array so that when socket.io emits messages in, it will store the data in the array
@@ -115,6 +122,9 @@ module.exports = function(storeName, panel, pageDirectory){
             ws.writeLine("oldDeviceDict = {};");
             // initialize mode variable
             ws.writeLine(`mode = '${mode}';`);
+            // initialize clustering hyperparameters
+            ws.writeLine(`bandwidthRadius = ${bandwidthRadius};`);
+            ws.writeLine(`deduplicationRadius = ${deduplicationRadius};`);
             // initialize valueType variable
             ws.writeLine(`valueType = '${valueType}';`);
             // symbol size logic
@@ -240,7 +250,7 @@ const __AddDataForClustering__ = (transitionPeriod) => "addDataPointsArray (data
         this.deviceDict[datum.deviceId] = [datum.x, datum.y, datum.deviceId, now, datum.value]\n\
     });\n\
     const points = Object.values(this.deviceDict);\n\
-    const fitted = fit(points, 10, 5);\n\
+    const fitted = fit(points, this.bandwidthRadius, this.deduplicationRadius);\n\
     if(transitionPeriod) {\n\
         assignTransitioningDevices(fitted);\n\
     }\n\
