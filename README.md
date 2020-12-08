@@ -14,6 +14,10 @@ TreeFlow is a generic visualization library that utilizes React.js, Mobx.js, Nod
 
 TreeFlow is a JSON-to-code compiler that takes a JSON configuration file and uses it to compile a data vizualisation application. Example of available configurations can be found in the wiki.
 
+## API Documentation
+* [API documentation](https://github.com/klaframboise/Treeflow.js/wiki/API)
+* [Bubble chart API documentation](https://github.com/klaframboise/Treeflow.js/wiki/Bubble-Chart-Configuration-and-Usage)
+* [Bin chart API documentation](https://github.com/klaframboise/Treeflow.js/wiki/Bin-Chart-Configuration-and-Usage)
 
 ## Getting Started
 
