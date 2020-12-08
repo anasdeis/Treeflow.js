@@ -105,15 +105,17 @@ module.exports = function(storeName, panel, pageDirectory){
             if (!["pre-clustered", "count", "average"].includes(mode)) {
                 throw "Clustering mode for bubble chart is missing or invalid";
             }
-            if (mode !== "pre-clustered" && (
-                !panel.bandwidthRadius || !panel.deduplicationRadius || typeof(panel.bandwidthRadius) !== 'number' 
-                || typeof(panel.deduplicationRadius) !== 'number')) {
-                throw "Clustering hyperparameters missing or invlaid";
-            }
-            const bandwidthRadius = panel.bandwidthRadius || 0;
-            const deduplicationRadius = panel.deduplicationRadius || 0;
+            const bandwidthRadius = panel.bandwidthRadius;
+            const deduplicationRadius = panel.deduplicationRadius;
             const valueType = panel.valueType || "";
             const maxBubbleSize = panel.maxBubbleSize || 10;
+
+            if (mode !== "pre-clustered") {
+                validateIsANumber("bandwidthRadius", bandwidthRadius);
+                validateIsANumber("deduplicationRadius", deduplicationRadius);
+            }
+            validateIsANumber("maxBubbleSize", maxBubbleSize);
+
             // initialize an empty array so that when socket.io emits messages in, it will store the data in the array
             ws.writeLine("@observable array = [];");
             // initialize a dictionary to store per-device value
@@ -141,6 +143,9 @@ module.exports = function(storeName, panel, pageDirectory){
             else if (mode === 'count' || mode === 'average') {
                 const historyLength = (panel.historyLength || 60) * 60 * 1000;
                 const transitionPeriod = (panel.transitionPeriod || 0) * 1000;
+                validateIsANumber("historyLength", historyLength);
+                validateIsANumber("transitionPeriod", transitionPeriod);
+
                 ws.writeLine(__AddDataForClustering__(transitionPeriod));
 
                 // Copy mean shift code block
@@ -175,6 +180,11 @@ module.exports = function(storeName, panel, pageDirectory){
             const maxBinColor = panel.maxBinColor || 10;
             const numberOfBinsX = panel.numberOfBinsX;
             const numberOfBinsY = panel.numberOfBinsY;
+
+            validateIsANumber("maxBinColor", maxBinColor);
+            validateIsANumber("numberOfBinsX", numberOfBinsX, true);
+            validateIsANumber("numberOfBinsY", numberOfBinsY, true);
+
             const binMethod = panel.binMethod;
             const binMethod_inputs = ["squareRoot", "scott", "freedmanDiaconis", "sturges"];
             if (binMethod != undefined && !binMethod_inputs.includes(binMethod)) {
@@ -203,6 +213,7 @@ module.exports = function(storeName, panel, pageDirectory){
             ws.writeLine(__AddGridPoints__);
 
             const historyLength = (panel.historyLength || 60) * 60 * 1000;
+            validateIsANumber("historyLength", historyLength);
 
             // Copy history length handling code block
             fs.readFile('./utils/code-blocks/binHistoryLengthInterval.js', 'utf-8', (err, template) => {
@@ -278,3 +289,16 @@ const __AddGridPoints__ = "\taddDataPointsArray(data) {\n\
             }\n\
         });\n\
     };"
+
+/**
+* Throws if the given value is null or not a number. 
+* @param {*} key used to identify which value is incorrect in the error message
+* @param {*} value value to verify
+* @param {Boolean} allowNull indicates whether null or undefined are acceptable values
+*/
+function validateIsANumber(key, value, allowNull=false) {
+    const isNull = value === undefined || value === null;
+    if ((isNull && !allowNull) || !isNull && (typeof(value) !== 'number' || isNaN(value))) {
+        throw `${key} ${allowNull ? "" : "is either missing or "}is not a number`;
+    }
+}
