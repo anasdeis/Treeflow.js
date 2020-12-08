@@ -96,7 +96,7 @@
         {
           "type": "bin",
           "mode": "count",
-          "maxBinColor": "15",
+          "maxBinColor": 15,
           "historyLength": 1,
           "binMethod": null,
           "numberOfBinsX": null,

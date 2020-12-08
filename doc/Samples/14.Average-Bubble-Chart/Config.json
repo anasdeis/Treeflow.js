@@ -96,6 +96,8 @@
         {
           "type": "bubble",
           "mode": "average",
+          "bandwidthRadius": 10,
+          "deduplicationRadius": 5,
           "maxBubbleSize": 30,
           "valueType": "degrees Celsius",
           "store": {

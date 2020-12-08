@@ -96,6 +96,8 @@
         {
           "type": "bubble",
           "mode": "count",
+          "bandwidthRadius": 10,
+          "deduplicationRadius": 5,
           "transitionPeriod": 10,
           "maxBubbleSize": 25,
           "store": {
